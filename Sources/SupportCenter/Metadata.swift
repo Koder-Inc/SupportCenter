@@ -11,12 +11,12 @@ import UIKit
 struct Metadata: Codable {
 
     var appVersion: String = ""
-    let os: String = "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
-    let device = UIDevice.modelName
+    var os: String = "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion)"
+    var device = UIDevice.modelName
     let presentingController: String
-    let locale = Locale.current.identifier
-    let bundleId = Bundle.main.bundleIdentifier
-    let languages = Locale.preferredLanguages.joined(separator: ", ")
+    var locale = Locale.current.identifier
+    var bundleId = Bundle.main.bundleIdentifier
+    var languages = Locale.preferredLanguages.joined(separator: ", ")
 
     init(controller: UIViewController) {
         if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {

@@ -12,8 +12,8 @@ import Photos
 
 class ComposeNavigationController: UINavigationController {
 
-    convenience init(option: ReportOption) {
-        self.init(rootViewController: ComposeViewController(option: option))
+    convenience init(viewModel: ComposeViewModel) {
+        self.init(rootViewController: ComposeViewController(viewModel: viewModel))
     }
 
     override init(rootViewController: UIViewController) {
@@ -36,7 +36,7 @@ class ComposeNavigationController: UINavigationController {
 
 class ComposeViewController: UIViewController, AttachmentsViewDelegate {
 
-    let option: ReportOption
+    private(set) var viewModel: ComposeViewModel
     let maxAttachmentsSize = 25_000_000
 
     var attachments: [Attachment] = []
@@ -64,6 +64,7 @@ class ComposeViewController: UIViewController, AttachmentsViewDelegate {
         t.translatesAutoresizingMaskIntoConstraints = false
         t.textContentType = .emailAddress
         t.keyboardType = .emailAddress
+        t.text = viewModel.email
         t.placeholder = "Enter your email"
         t.autocapitalizationType = .none
         t.heightAnchor.constraint(equalToConstant: 50.0).isActive = true
@@ -89,12 +90,12 @@ class ComposeViewController: UIViewController, AttachmentsViewDelegate {
         return v
     }()
 
-    convenience init(option: ReportOption) {
-        self.init(nibName: nil, bundle: nil, option: option)
+    convenience init(viewModel: ComposeViewModel) {
+        self.init(nibName: nil, bundle: nil, viewModel: viewModel)
     }
 
-    init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?, option: ReportOption) {
-        self.option = option
+    init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?, viewModel: ComposeViewModel) {
+        self.viewModel = viewModel
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
 
@@ -106,7 +107,7 @@ class ComposeViewController: UIViewController, AttachmentsViewDelegate {
         super.viewDidLoad()
         isModalInPresentation = true
         view.backgroundColor = .systemBackground
-        title = option.title
+        title = viewModel.option.title
         navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(self.actionCancel))
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "paperplane.fill"), style: .done, target: self, action: #selector(actionSend(sender:)))
         setupSubviews()
@@ -170,7 +171,7 @@ class ComposeViewController: UIViewController, AttachmentsViewDelegate {
         sender.isEnabled = false
         let loadingAlert = ProgressAlert(title: "Sending", message: nil, preferredStyle: .alert)
         present(loadingAlert, animated: true, completion: nil)
-        SupportCenter.sendgrid?.sendSupportEmail(ofType: option, senderEmail: senderEmail, message: content, attachments: attachments, completion: { [weak self] (result) in
+        SupportCenter.sendgrid?.sendSupportEmail(ofType: viewModel.option, senderEmail: senderEmail, message: content, attachments: attachments, completion: { [weak self] (result) in
             loadingAlert.dismiss(animated: true, completion: {
                 self?.handleSendResult(result: result, sender: sender)
             })

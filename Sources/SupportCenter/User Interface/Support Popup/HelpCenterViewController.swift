@@ -11,6 +11,7 @@ import UIKit
 class SupportCenterViewController: UIViewController, SupportCenterHelpContainerViewDelegate {
 
     let options: [ReportOption]
+    private(set) var email: String?
 
     lazy var blurView: UIVisualEffectView = {
         let v = UIVisualEffectView()
@@ -46,13 +47,14 @@ class SupportCenterViewController: UIViewController, SupportCenterHelpContainerV
         return [leading, trailing, width]
     }()
 
-    convenience init(options: [ReportOption]) {
-        self.init(nibName: nil, bundle: nil, options: options)
+    convenience init(options: [ReportOption], email: String? = nil) {
+        self.init(nibName: nil, bundle: nil, options: options, email: email)
         modalPresentationStyle = .overFullScreen
     }
 
-    init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?, options: [ReportOption]) {
+    init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?, options: [ReportOption], email: String? = nil) {
         self.options = options
+        self.email = email
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
 
@@ -128,7 +130,7 @@ class SupportCenterViewController: UIViewController, SupportCenterHelpContainerV
     func presentComposeSheet(for option: ReportOption) {
         guard let controller = presentingViewController else { return }
         hideAnimated {
-            controller.present(ComposeNavigationController(option: option), animated: true, completion: nil)
+            controller.present(ComposeNavigationController(viewModel: ComposeViewModel(email: self.email, option: option)), animated: true, completion: nil)
         }
     }
 
